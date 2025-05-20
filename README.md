@@ -110,3 +110,15 @@ Para diagnosticar problemas no circuito:
 - Use o comando `pinout` para confirmar os GPIOs.
 
 ---
+
+## Comandos git dentro do repositório IFprojetoRFID
+
+Para baixar atualizações
+```
+git pull origin main
+```
+
+Para enviar atualizações
+```
+git push origin main
+```
