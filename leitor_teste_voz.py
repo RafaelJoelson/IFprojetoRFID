@@ -21,18 +21,35 @@ acao_detectada = None
 print("Aproxime as etiquetas RFID para formar a frase...")
 
 # --- Função para Falar ---
+# NOVA VERSÃO PARA DIAGNÓSTICO
 def falar(texto):
     """Gera o áudio a partir do texto e o reproduz."""
+    print("1. Entrando na função 'falar'. Tentando gerar áudio...")
     try:
+        if not texto or not texto.strip():
+            print("ERRO: O texto para falar está vazio. Abortando.")
+            return
+
         tts = gTTS(text=texto, lang='pt-br')
+        print(f"2. Objeto gTTS criado. Tentando salvar o arquivo 'frase.mp3'...")
+        
         tts.save("frase.mp3")
+        print("3. Arquivo 'frase.mp3' salvo com sucesso!")
+
         pygame.mixer.music.load("frase.mp3")
         pygame.mixer.music.play()
+        
         while pygame.mixer.music.get_busy():
             continue
-        os.remove("frase.mp3") # Remove o arquivo para não acumular
+            
+        print("4. Áudio reproduzido.")
+        os.remove("frase.mp3")
+        print("5. Arquivo temporário removido.")
+
     except Exception as e:
-        print(f"Ocorreu um erro ao tentar falar: {e}")
+        print("\n!!!!!!!!!! ERRO CRÍTICO AO GERAR/TOCAR O ÁUDIO !!!!!!!!!!")
+        print(f"A EXCEÇÃO FOI: {e}")
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
 
 # --- Loop Principal ---
 try:
@@ -68,7 +85,7 @@ try:
             # Reseta as variáveis para a próxima leitura
             pronome_detectado = None
             acao_detectada = None
-            time.sleep(2) # Pausa para evitar repetições imediatas
+            time.sleep(5) # Pausa para evitar repetições imediatas
 
         time.sleep(0.1)
 
