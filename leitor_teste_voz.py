@@ -2,9 +2,7 @@ import RPi.GPIO as GPIO
 import MFRC522_1 as RFID1
 import MFRC522_2 as RFID2
 import time
-from gtts import gTTS
-import os
-import pygame
+from espeak import espeak # Importação para o eSpeak
 
 # --- Importa os mapeamentos do arquivo externo ---
 from mapeamento_tags import pronomes, acoes
@@ -13,44 +11,40 @@ from mapeamento_tags import pronomes, acoes
 reader1 = RFID1.MFRC522()
 reader2 = RFID2.MFRC522()
 
-pygame.mixer.init()
+# Não precisamos mais do pygame.mixer.init() ou pygame.quit()
+# pygame.mixer.init() # Não é necessário para eSpeak
 
 pronome_detectado = None
 acao_detectada = None
 
 print("Aproxime as etiquetas RFID para formar a frase...")
 
-# --- Função para Falar ---
-# NOVA VERSÃO PARA DIAGNÓSTICO
+## Função para Falar com eSpeak
+
 def falar(texto):
-    """Gera o áudio a partir do texto e o reproduz."""
-    print("1. Entrando na função 'falar'. Tentando gerar áudio...")
+    """Gera o áudio a partir do texto usando eSpeak e o reproduz."""
+    print("1. Entrando na função 'falar'. Tentando gerar áudio com eSpeak...")
     try:
         if not texto or not texto.strip():
             print("ERRO: O texto para falar está vazio. Abortando.")
             return
 
-        tts = gTTS(text=texto, lang='pt-br')
-        print(f"2. Objeto gTTS criado. Tentando salvar o arquivo 'frase.mp3'...")
+        # Define o idioma para português do Brasil
+        espeak.set_voice('pt-br') 
         
-        tts.save("frase.mp3")
-        print("3. Arquivo 'frase.mp3' salvo com sucesso!")
-
-        pygame.mixer.music.load("frase.mp3")
-        pygame.mixer.music.play()
+        # Sintetiza e fala o texto
+        espeak.synth(texto)
+        print(f"2. eSpeak sintetizou e reproduziu: '{texto}'")
         
-        while pygame.mixer.music.get_busy():
-            continue
-            
-        print("4. Áudio reproduzido.")
-        os.remove("frase.mp3")
-        print("5. Arquivo temporário removido.")
+        # O eSpeak bloqueia a execução até que a fala termine,
+        # então não precisamos de um loop de verificação como no pygame.
+        print("3. Áudio reproduzido.")
 
     except Exception as e:
-        print("\n!!!!!!!!!! ERRO CRÍTICO AO GERAR/TOCAR O ÁUDIO !!!!!!!!!!")
+        print("\n!!!!!!!!!! ERRO CRÍTICO AO GERAR/TOCAR O ÁUDIO COM eSPEAK !!!!!!!!!!")
         print(f"A EXCEÇÃO FOI: {e}")
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
-
+        print("Verifique se o eSpeak está instalado corretamente (sudo apt-get install espeak python-espeak).")
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
 # --- Loop Principal ---
 try:
     while True:
@@ -93,4 +87,5 @@ except KeyboardInterrupt:
     print("\nEncerrando o programa...")
 finally:
     GPIO.cleanup()
-    pygame.quit()
+    # Não precisamos mais do pygame.quit() aqui
+    # pygame.quit()
