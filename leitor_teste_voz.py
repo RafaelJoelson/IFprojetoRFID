@@ -2,7 +2,7 @@ import RPi.GPIO as GPIO
 import MFRC522_1 as RFID1
 import MFRC522_2 as RFID2
 import time
-from espeak import espeak # Importação para o eSpeak
+import pyttsx3
 
 # --- Importa os mapeamentos do arquivo externo ---
 from mapeamento_tags import pronomes, acoes
@@ -11,39 +11,36 @@ from mapeamento_tags import pronomes, acoes
 reader1 = RFID1.MFRC522()
 reader2 = RFID2.MFRC522()
 
-# Não precisamos mais do pygame.mixer.init() ou pygame.quit()
-# pygame.mixer.init() # Não é necessário para eSpeak
-
 pronome_detectado = None
 acao_detectada = None
 
 print("Aproxime as etiquetas RFID para formar a frase...")
 
-## Função para Falar com eSpeak
+## Função para Falar com pyttsx3
 
 def falar(texto):
-    """Gera o áudio a partir do texto usando eSpeak e o reproduz."""
-    print("1. Entrando na função 'falar'. Tentando gerar áudio com eSpeak...")
+    """Gera o áudio a partir do texto usando pyttsx3 e o reproduz."""
+    print("1. Entrando na função 'falar'. Tentando gerar áudio com pyttsx3...")
     try:
         if not texto or not texto.strip():
             print("ERRO: O texto para falar está vazio. Abortando.")
             return
 
-        # Define o idioma para português do Brasil
-        espeak.set_voice('pt-br') 
-        
-        # Sintetiza e fala o texto
-        espeak.synth(texto)
-        print(f"2. eSpeak sintetizou e reproduziu: '{texto}'")
-        
-        # O eSpeak bloqueia a execução até que a fala termine,
-        # então não precisamos de um loop de verificação como no pygame.
+        engine = pyttsx3.init()
+        # Define o idioma para português do Brasil, se disponível
+        voices = engine.getProperty('voices')
+        for voice in voices:
+            if 'brazil' in voice.name.lower() or 'portuguese' in voice.name.lower():
+                engine.setProperty('voice', voice.id)
+                break
+        engine.say(texto)
+        engine.runAndWait()
+        print(f"2. pyttsx3 sintetizou e reproduziu: '{texto}'")
         print("3. Áudio reproduzido.")
-
     except Exception as e:
-        print("\n!!!!!!!!!! ERRO CRÍTICO AO GERAR/TOCAR O ÁUDIO COM eSPEAK !!!!!!!!!!")
+        print("\n!!!!!!!!!! ERRO CRÍTICO AO GERAR/TOCAR O ÁUDIO COM pyttsx3 !!!!!!!!!!")
         print(f"A EXCEÇÃO FOI: {e}")
-        print("Verifique se o eSpeak está instalado corretamente (sudo apt-get install espeak python-espeak).")
+        print("Verifique se o pyttsx3 está instalado corretamente (pip install pyttsx3).")
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
 # --- Loop Principal ---
 try:
@@ -87,5 +84,3 @@ except KeyboardInterrupt:
     print("\nEncerrando o programa...")
 finally:
     GPIO.cleanup()
-    # Não precisamos mais do pygame.quit() aqui
-    # pygame.quit()
