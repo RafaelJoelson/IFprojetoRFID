@@ -61,6 +61,8 @@ try:
                     print(f"Ação reconhecida: {acao_detectada}")
 
         # Se ambos foram detectados, forma a frase e fala
+        print(f"DEBUG: pronome_detectado = {pronome_detectado}")
+        print(f"DEBUG: acao_detectada = {acao_detectada}")
         if pronome_detectado and acao_detectada:
             frase_completa = f"{pronome_detectado} {acao_detectada}"
             print(f"Frase formada: '{frase_completa}'")
