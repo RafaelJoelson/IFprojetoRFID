@@ -26,7 +26,7 @@ def falar(texto):
             print("ERRO: O texto para falar está vazio. Abortando.")
             return
         # Chama o eSpeak diretamente pelo sistema, idioma pt-br
-        comando = f'espeak -v pt-br "{texto}"'
+        comando = f'espeak -v pt-br "{texto}" -s 120'  # Ajuste a velocidade se necessário
         os.system(comando)
         print(f"2. eSpeak sintetizou e reproduziu: '{texto}'")
         print("3. Áudio reproduzido.")
