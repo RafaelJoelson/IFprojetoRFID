@@ -48,6 +48,8 @@ try:
                 if uid_str1 in pronomes:
                     pronome_detectado = pronomes[uid_str1]
                     print(f"Pronome reconhecido: {pronome_detectado}")
+                else:
+                    print(f"Pronome não mapeado para UID: {uid_str1}")
 
         # Leitor 2 (Ações)
         (status2, uid2) = reader2.MFRC522_Request(reader2.PICC_REQIDL)
@@ -59,10 +61,10 @@ try:
                 if uid_str2 in acoes:
                     acao_detectada = acoes[uid_str2]
                     print(f"Ação reconhecida: {acao_detectada}")
+                else:
+                    print(f"Ação não mapeada para UID: {uid_str2}")
 
         # Se ambos foram detectados, forma a frase e fala
-        print(f"DEBUG: pronome_detectado = {pronome_detectado}")
-        print(f"DEBUG: acao_detectada = {acao_detectada}")
         if pronome_detectado and acao_detectada:
             frase_completa = f"{pronome_detectado} {acao_detectada}"
             print(f"Frase formada: '{frase_completa}'")
