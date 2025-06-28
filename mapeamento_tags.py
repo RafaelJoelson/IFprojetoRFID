@@ -7,13 +7,15 @@
 pronomes = {
     "[134, 188, 115, 248, 177]": "Eu",
     "[196, 212, 82, 115, 49]": "Você",
-    "UID_DA_TAG_ELE": "Ele"
+    "[70, 147, 113, 248, 92]": "Nós",
+    "[198, 55, 118, 248, 127]": "Ele"
     # Adicione mais pronomes e seus UIDs aqui
 }
 
 acoes = {
     "[192, 118, 11, 63, 130]": "comer",
     "[246, 116, 127, 248, 5]": "tomar banho",
-    "UID_DA_TAG_BRINCAR": "brincar"
+    "[246, 55, 126, 248, 71]": "brincar",
+    "[70, 227, 115, 248, 46]": "banheiro"
     # Adicione mais ações e seus UIDs aqui
 }
