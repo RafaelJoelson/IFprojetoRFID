@@ -5,7 +5,7 @@ import time
 import os
 
 # --- Importa os mapeamentos do arquivo externo ---
-from mapeamento_tags import pronomes, acoes
+from mapeamento_tags import pronomes, acoes, conjugacao_querer
 
 # --- Inicialização ---
 reader1 = RFID1.MFRC522()
@@ -66,8 +66,18 @@ try:
 
         # Se ambos foram detectados, forma a frase e fala
         if pronome_detectado and acao_detectada:
-            frase_completa = f"{pronome_detectado} {acao_detectada}"
-            print(f"Frase formada: '{frase_completa}'")
+            # Busca a conjugação do verbo "querer" para o pronome detectado
+            verbo_conjugado = conjugacao_querer.get(pronome_detectado)
+
+            if verbo_conjugado:
+                # Forma a frase no novo formato: "Pronome + querer(conjugado) + ação"
+                frase_completa = f"{pronome_detectado} {verbo_conjugado} {acao_detectada}"
+            else:
+                # Fallback para o formato antigo se a conjugação não for encontrada
+                print(f"AVISO: Conjugação para o pronome '{pronome_detectado}' não encontrada. Usando formato antigo.")
+                frase_completa = f"{pronome_detectado} {acao_detectada}"
+
+            print(f"\n--- FRASE FORMADA --- \n'{frase_completa}'\n---------------------\n")
             falar(frase_completa)
             
             # Reseta as variáveis para a próxima leitura

@@ -16,6 +16,15 @@ acoes = {
     "[192, 118, 11, 63, 130]": "comer",
     "[246, 116, 127, 248, 5]": "tomar banho",
     "[246, 55, 126, 248, 71]": "brincar",
-    "[70, 227, 115, 248, 46]": "banheiro"
+    "[70, 227, 115, 248, 46]": "ir ao banheiro"
     # Adicione mais ações e seus UIDs aqui
+}
+
+# --- Mapeamento para Conjugação de Verbos ---
+# Associa um pronome à conjugação correta de um verbo auxiliar (ex: "querer").
+conjugacao_querer = {
+    "Eu": "quero",
+    "Você": "quer",
+    "Ele": "quer",
+    "Nós": "queremos"
 }
