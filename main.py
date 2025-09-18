@@ -17,16 +17,14 @@ def carregar_mapeamento(nome_arquivo):
 
 #conjugações do verbo "querer" para diferentes pronomes
 conjugacao_querer = {
-    "eu": "quero",
-    "tu": "queres",
-    "ele": "quer",
-    "ela": "quer",
-    "nós": "queremos",
-    "vós": "quereis",
-    "eles": "querem",
-    "elas": "querem",
-    "você": "quer",
-    "vocês": "querem"
+    "Eu": "quero",
+    "Você": "quer",
+    "Ele": "quer",
+    "Ela": "quer",
+    "Nós": "queremos",
+    "Vocês": "querem",
+    "Eles": "querem",
+    "Elas": "querem"
 }
 
 # --- Carregamento de Mapeamentos ---
