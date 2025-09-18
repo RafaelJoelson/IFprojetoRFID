@@ -3,9 +3,23 @@ import MFRC522_1 as RFID1
 import MFRC522_2 as RFID2
 import time
 import os
+import json
 
-# --- Importa os mapeamentos do arquivo externo ---
-from mapeamento_tags import pronomes, acoes, conjugacao_querer
+# --- Funções para carregar mapeamentos ---
+def carregar_mapeamento(nome_arquivo):
+    """Carrega um mapeamento de um arquivo JSON."""
+    try:
+        with open(nome_arquivo, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print(f"AVISO: Arquivo de mapeamento '{nome_arquivo}' não encontrado. Um dicionário vazio será usado.")
+        return {}
+
+# --- Importa e carrega os mapeamentos ---
+from mapeamento_tags import conjugacao_querer # Mantém a importação da conjugação
+
+pronomes = carregar_mapeamento('pronomes.json')
+acoes = carregar_mapeamento('acoes.json')
 
 # --- Inicialização ---
 reader1 = RFID1.MFRC522()
