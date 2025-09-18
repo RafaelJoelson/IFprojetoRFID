@@ -15,8 +15,21 @@ def carregar_mapeamento(nome_arquivo):
         print(f"AVISO: Arquivo de mapeamento '{nome_arquivo}' não encontrado. Um dicionário vazio será usado.")
         return {}
 
-# --- Importa e carrega os mapeamentos ---
-from mapeamento_tags import conjugacao_querer # Mantém a importação da conjugação
+#conjugações do verbo "querer" para diferentes pronomes
+conjugacao_querer = {
+    "eu": "quero",
+    "tu": "queres",
+    "ele": "quer",
+    "ela": "quer",
+    "nós": "queremos",
+    "vós": "quereis",
+    "eles": "querem",
+    "elas": "querem",
+    "você": "quer",
+    "vocês": "querem"
+}
+
+# --- Carregamento de Mapeamentos ---
 
 pronomes = carregar_mapeamento('pronomes.json')
 acoes = carregar_mapeamento('acoes.json')

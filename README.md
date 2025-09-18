@@ -1,168 +1,125 @@
-# IFprojetoRFID
+# IFprojetoRFID: Brinquedo Interativo para Comunicação
 
-Arduino, Acessibilidade e Comunicação Alternativa
-
-# Objetivo: Brinquedo Interativo para Comunicação de Crianças Autistas
-
-Este projeto permite conectar **dois sensores RFID MFRC522** ao Raspberry Pi utilizando a comunicação **SPI**, com leitura simultânea. O sistema foi adaptado para funcionar como um brinquedo educativo, ajudando crianças autistas a se comunicarem por meio da montagem de frases simples com cartões RFID. Ao aproximar os cartões, o sistema fala a frase formada, promovendo inclusão e aprendizado.
+Este projeto transforma um Raspberry Pi e leitores de RFID em um brinquedo educativo e interativo, projetado para auxiliar na comunicação de crianças no espectro autista. O sistema permite que a criança forme frases simples ("Eu quero brincar") aproximando cartões com figuras de dois leitores RFID. O sistema então vocaliza a frase formada, fornecendo feedback auditivo imediato.
 
 ---
 
-## 🧰 Materiais necessários
+## 🧰 Materiais Necessários
 
-- 1 Raspberry Pi (com Raspbian instalado)
+- 1 Raspberry Pi (qualquer modelo com 40 pinos GPIO)
 - 2 leitores RFID MFRC522
-- 2 ou mais tags/cartões RFID (quanto mais, melhor!)
-- Caixinha de som ou fone de ouvido para saída de áudio
+- Tags ou cartões RFID variados
+- Uma fonte de áudio (caixa de som ou fone de ouvido com conexão P2)
 
 ---
 
-## 🔌 Conexões dos sensores
+## 🔌 Conexões dos Sensores
 
-| Pino do MFRC522 | Leitor 1 (CE0)   | Leitor 2 (CE1)   | Função              |
-|------------------|------------------|------------------|---------------------|
-| **SDA**          | GPIO8  (CE0)     | GPIO7  (CE1)     | Chip Select (SPI)   |
-| **SCK**          | GPIO11           | GPIO11           | Clock SPI           |
-| **MOSI**         | GPIO10           | GPIO10           | SPI MOSI            |
-| **MISO**         | GPIO9            | GPIO9            | SPI MISO            |
-| **RST**          | GPIO25           | GPIO24           | Reset (diferente!)  |
-| **GND**          | GND              | GND              | Terra               |
-| **3.3V**         | 3.3V             | 3.3V             | Alimentação         |
+Os dois leitores compartilham os pinos de SPI (SCK, MOSI, MISO), mas utilizam pinos de *Chip Select* (SDA/CS) e *Reset* (RST) diferentes.
 
-> ⚠️ Os pinos **RST** devem ir para **GPIOs diferentes**. E os leitores devem compartilhar SPI, mas ter CS (SDA) separados: um em CE0 e o outro em CE1.
+| Pino do MFRC522 | Leitor 1 (Pronomes) | Leitor 2 (Ações) | Pino Físico (Exemplo) |
+|-----------------|---------------------|------------------|-----------------------|
+| **SDA (CS)**    | GPIO8 (SPI_CE0)     | GPIO7 (SPI_CE1)  | 24 / 26               |
+| **SCK**         | GPIO11 (SPI_SCLK)   | GPIO11 (SPI_SCLK)| 23                    |
+| **MOSI**        | GPIO10 (SPI_MOSI)   | GPIO10 (SPI_MOSI)| 19                    |
+| **MISO**        | GPIO9 (SPI_MISO)    | GPIO9 (SPI_MISO) | 21                    |
+| **RST**         | GPIO25              | GPIO24           | 22 / 18               |
+| **GND**         | GND                 | GND              | Qualquer pino GND     |
+| **3.3V**        | 3.3V                | 3.3V             | Qualquer pino 3.3V    |
 
----
-
-## ⚙️ Habilitar SPI no Raspberry Pi
-
-No terminal:
-
-```bash
-sudo raspi-config
-```
-
-- Vá em **Interface Options**
-- Escolha **SPI**
-- Ative a opção
-- Reinicie o Raspberry Pi
+> ⚠️ **Atenção:** É crucial que os pinos `RST` sejam diferentes e que cada leitor use um canal de Chip Select (CE0 e CE1) diferente para que o barramento SPI possa alternar entre eles.
 
 ---
 
-## 📦 Instalar bibliotecas necessárias
+## ⚙️ Configuração Inicial do Raspberry Pi
 
-No terminal, execute:
+### 1. Habilitar a Interface SPI
+No terminal, execute `sudo raspi-config`, vá em `Interface Options` -> `SPI` e selecione `Yes` para ativar. Reinicie o Raspberry Pi após a alteração.
+
+### 2. Instalar Dependências
+No terminal, execute os seguintes comandos para instalar as bibliotecas e ferramentas necessárias:
 
 ```bash
 sudo apt update
-sudo apt install python3-pip git espeak
+sudo apt install python3-pip git espeak -y
 pip3 install spidev RPi.GPIO
 ```
 
 ---
 
-## 📁 Preparar arquivos do projeto
+## 🚀 Como Usar o Projeto
 
-Clone o repositório (ou copie os arquivos manualmente):
+O projeto é dividido em duas partes principais: cadastrar as tags e executar o programa de comunicação.
 
-```bash
-git clone <link-do-repositorio>
-cd <pasta-do-projeto>
-```
+### 1. Cadastrando as Tags (Novo Sistema)
 
-Você deve ter os seguintes arquivos:
+Para associar suas tags RFID a palavras (pronomes ou ações), utilize o script de gerenciamento interativo. Ele é mais fácil e seguro do que editar o código manualmente.
 
-```
-leitor_duplo.py
-leitor_teste_voz.py
-MFRC522_1.py
-MFRC522_2.py
-mapeamento_tags.py
-```
+**Como executar:**
 
-Cada versão da biblioteca `MFRC522` foi adaptada para funcionar com um leitor diferente:
+1.  Abra o terminal no seu Raspberry Pi.
+2.  Navegue até a pasta do projeto: `cd /caminho/para/IFprojetoRFID`
+3.  Execute o script de mapeamento:
+    ```bash
+    python3 mapeamento_tags.py
+    ```
+4.  Siga as instruções no menu para escolher entre cadastrar uma **ação** ou um **pronome**, digitar o nome e aproximar a tag do **leitor 1**.
 
-- `MFRC522_1.py` → usa **CE0 (GPIO8)**
-- `MFRC522_2.py` → usa **CE1 (GPIO7)**
+Os mapeamentos serão salvos nos arquivos `acoes.json` e `pronomes.json`.
 
----
+> #### ⚠️ **Resolvendo Erros de Permissão no Raspberry Pi**
+> Ao executar o script de mapeamento pela primeira vez, você pode encontrar um `PermissionError`. Isso ocorre porque, por padrão, seu usuário pode não ter permissão para criar arquivos na pasta.
+>
+> - **Solução Rápida:** Execute o script com privilégios de administrador usando `sudo`.
+>   ```bash
+>   sudo python3 mapeamento_tags.py
+>   ```
+> - **Solução Recomendada (Permanente):** Torne seu usuário o "dono" da pasta do projeto. Execute este comando **uma vez** e você não precisará mais usar `sudo` para este projeto.
+>   ```bash
+>   # Substitua 'pi' pelo seu nome de usuário, se for diferente
+>   sudo chown -R pi:pi .
+>   ```
 
-## ▶️ Executar o código
+### 2. Executando o Programa Principal
 
-No terminal:
+Após cadastrar suas tags, execute o programa principal para iniciar a comunicação.
 
-```bash
-python3 leitor_duplo.py
-```
+1.  No terminal, na pasta do projeto, execute:
+    ```bash
+    python3 main.py
+    ```
+2.  O programa irá carregar as tags dos arquivos `.json` e dirá: "Aproxime as etiquetas RFID para formar a frase...".
+3.  Aproxime uma tag de pronome do **Leitor 1** e uma tag de ação do **Leitor 2**.
+4.  O sistema formará a frase e a falará em voz alta.
 
-Se os dois leitores estiverem corretamente conectados e os cartões forem aproximados, você verá:
-
-```
-Leitor 1: UID: [...]
-Leitor 2: UID: [...]
-RFID 1 e RFID 2 foram reconhecidos!
-```
-
----
-
-## 🗣️ Como funciona a fala automática
-
-Ao aproximar um cartão RFID de cada leitor, o sistema identifica o pronome e a ação, monta a frase e fala automaticamente usando o eSpeak (voz offline). Exemplo:
-
+**Exemplo de saída:**
 ```
 Leitor 1 (Pronome) detectou o UID: [134, 188, 115, 248, 177]
 Pronome reconhecido: Eu
-Leitor 2 (Ação) detectou o UID: [192, 118, 11, 63, 130]
-Ação reconhecida: quero comer
-Frase formada: 'Eu quero comer'
+
+Leitor 2 (Ação) detectou o UID: [246, 55, 126, 248, 71]
+Ação reconhecida: brincar
+
+--- FRASE FORMADA --- 
+'Eu quero brincar'
+---------------------
 ```
 
 ---
 
-## 🏷️ Como cadastrar novas tags
+## 📂 Estrutura dos Arquivos
 
-1. Aproximar a tag do leitor e anotar o UID exibido no terminal.
-2. Editar o arquivo `mapeamento_tags.py` e adicionar o UID (com espaços, igual ao print) ao dicionário `pronomes` ou `acoes`.
-3. Salvar o arquivo e reiniciar o programa.
-
-Exemplo:
-```python
-pronomes = {
-    "[134, 188, 115, 248, 177]": "Eu",
-    "[X, Y, Z, ...]": "Você"
-}
-acoes = {
-    "[192, 118, 11, 63, 130]": "quero comer"
-}
-```
+- `main.py`: O programa principal que lê as tags e forma as frases.
+- `mapeamento_tags.py`: Ferramenta de linha de comando para cadastrar e gerenciar as tags.
+- `acoes.json`: Arquivo que armazena o mapeamento de UIDs para tags de "ação".
+- `pronomes.json`: Arquivo que armazena o mapeamento de UIDs para tags de "pronome".
+- `MFRC522_1.py` / `MFRC522_2.py`: Bibliotecas adaptadas para controlar cada um dos leitores RFID em canais SPI diferentes.
+- `leitor_de-teste-de-tag.py`: Script simples para depuração, que detecta e exibe os UIDs nos dois leitores.
 
 ---
 
-## 💡 Dicas de uso e expansão
+## 💡 Dicas e Expansão
 
-- Cole figuras ou símbolos nos cartões para reforço visual.
-- Adicione LEDs ou sons para feedback positivo.
-- Expanda o vocabulário com mais cartões e frases.
-- Pais e terapeutas podem personalizar as frases conforme a necessidade da criança.
-- O sistema pode ser adaptado para montar frases com mais de dois cartões (ex: pronome + ação + objeto).
-
----
-
-## 🛡️ Segurança e acessibilidade
-
-- Use caixas e peças resistentes, sem partes pequenas.
-- Certifique-se de que o áudio está audível e o volume adequado.
-- O sistema funciona totalmente offline.
-
----
-
-## Comandos git dentro do repositório IFprojetoRFID
-
-Para baixar atualizações
-```
-git pull origin main
-```
-
-Para enviar atualizações
-```
-git push origin main
-```
+- **Reforço Visual:** Cole figuras ou pictogramas nos cartões RFID.
+- **Feedback Tátil/Visual:** Adicione LEDs que acendem ou motores de vibração para dar feedback quando uma tag é lida corretamente.
+- **Expansão do Vocabulário:** O sistema é facilmente expansível. Basta cadastrar mais cartões de pronomes, ações, ou até mesmo objetos para formar frases mais complexas.
