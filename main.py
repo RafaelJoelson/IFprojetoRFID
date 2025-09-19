@@ -5,7 +5,7 @@ import time
 import os
 import json
 
-# --- Funções para carregar mapeamentos ---
+# --- Funções Auxiliares ---
 def carregar_mapeamento(nome_arquivo):
     """Carrega um mapeamento de um arquivo JSON."""
     try:
@@ -14,6 +14,24 @@ def carregar_mapeamento(nome_arquivo):
     except FileNotFoundError:
         print(f"AVISO: Arquivo de mapeamento '{nome_arquivo}' não encontrado. Um dicionário vazio será usado.")
         return {}
+
+def falar(texto):
+    """Gera o áudio a partir do texto usando o comando do sistema eSpeak."""
+    print("1. Entrando na função 'falar'. Tentando gerar áudio com eSpeak via sistema...")
+    try:
+        if not texto or not texto.strip():
+            print("ERRO: O texto para falar está vazio. Abortando.")
+            return
+        # Chama o eSpeak diretamente pelo sistema, idioma pt-br
+        comando = f'espeak -v pt-br -s 120 -a 150 -g 10 "{texto}"'  # Ajuste a velocidade se necessário
+        os.system(comando)
+        print(f"2. eSpeak sintetizou e reproduziu: '{texto}'")
+        print("3. Áudio reproduzido.")
+    except Exception as e:
+        print("\n!!!!!!!!!! ERRO CRÍTICO AO GERAR/TOCAR O ÁUDIO COM eSPEAK !!!!!!!!!!")
+        print(f"A EXCEÇÃO FOI: {e}")
+        print("Verifique se o eSpeak está instalado corretamente (sudo apt-get install espeak).")
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
 
 #conjugações do verbo "querer" para diferentes pronomes
 conjugacao_querer = {
@@ -39,27 +57,13 @@ reader2 = RFID2.MFRC522()
 pronome_detectado = None
 acao_detectada = None
 
+# --- Sinal de Início com Atraso ---
+print("Sistema iniciando... Aguarde 10 segundos pelo sinal sonoro.")
+time.sleep(10) # Pausa de 10 segundos
+falar("Olá, estou pronto para formar frases.")
+
 print("Aproxime as etiquetas RFID para formar a frase...")
 
-## Função para Falar com eSpeak
-
-def falar(texto):
-    """Gera o áudio a partir do texto usando o comando do sistema eSpeak."""
-    print("1. Entrando na função 'falar'. Tentando gerar áudio com eSpeak via sistema...")
-    try:
-        if not texto or not texto.strip():
-            print("ERRO: O texto para falar está vazio. Abortando.")
-            return
-        # Chama o eSpeak diretamente pelo sistema, idioma pt-br
-        comando = f'espeak -v pt-br -s 120 -a 150 -g 10 "{texto}"'  # Ajuste a velocidade se necessário
-        os.system(comando)
-        print(f"2. eSpeak sintetizou e reproduziu: '{texto}'")
-        print("3. Áudio reproduzido.")
-    except Exception as e:
-        print("\n!!!!!!!!!! ERRO CRÍTICO AO GERAR/TOCAR O ÁUDIO COM eSPEAK !!!!!!!!!!")
-        print(f"A EXCEÇÃO FOI: {e}")
-        print("Verifique se o eSpeak está instalado corretamente (sudo apt-get install espeak).")
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
 # --- Loop Principal ---
 try:
     while True:
