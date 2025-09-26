@@ -4,8 +4,12 @@ import MFRC522_2 as RFID2
 import time
 import os
 import json
+import subprocess # Adicionamos o subprocess para o aquecimento
 
+# --- Constantes ---
+ESPEAK_PATH = '/usr/bin/espeak'
 # --- Funções Auxiliares ---
+
 def carregar_mapeamento(nome_arquivo):
     """Carrega um mapeamento de um arquivo JSON."""
     try:
@@ -17,23 +21,35 @@ def carregar_mapeamento(nome_arquivo):
 
 def falar(texto):
     """Gera o áudio a partir do texto usando o comando do sistema eSpeak."""
-    print("1. Entrando na função 'falar'. Tentando gerar áudio com eSpeak via sistema...")
+    print("1. Entrando na função 'falar'. Tentando gerar áudio com eSpeak...")
     try:
         if not texto or not texto.strip():
             print("ERRO: O texto para falar está vazio. Abortando.")
             return
-        # Chama o eSpeak diretamente pelo sistema, idioma pt-br
-        comando = f'espeak -v pt-br -s 120 -a 150 -g 10 "{texto}"'  # Ajuste a velocidade se necessário
-        os.system(comando)
+
+        # Chamada direta e limpa. Não é preciso mais o os.system para evitar problemas
+        comando = [
+            ESPEAK_PATH, 
+            '-v', 'pt-br', 
+            '-s', '120',  # Velocidade
+            '-a', '150',  # Amplitude
+            '-g', '10',   # Gap entre palavras
+            texto
+        ]
+        
+        # Usamos subprocess.run no lugar de os.system, que é mais robusto
+        # e garante que o caminho absoluto seja usado corretamente.
+        subprocess.run(comando, check=True)
+        
         print(f"2. eSpeak sintetizou e reproduziu: '{texto}'")
         print("3. Áudio reproduzido.")
-    except Exception as e:
+    except subprocess.CalledProcessError as e:
         print("\n!!!!!!!!!! ERRO CRÍTICO AO GERAR/TOCAR O ÁUDIO COM eSPEAK !!!!!!!!!!")
         print(f"A EXCEÇÃO FOI: {e}")
         print("Verifique se o eSpeak está instalado corretamente (sudo apt-get install espeak).")
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
 
-#conjugações do verbo "querer" para diferentes pronomes
+# conjugações do verbo "querer" para diferentes pronomes
 conjugacao_querer = {
     "Eu": "quero",
     "Você": "quer",
@@ -57,10 +73,20 @@ reader2 = RFID2.MFRC522()
 pronome_detectado = None
 acao_detectada = None
 
-# --- Sinal de Início com Atraso ---
-print("Sistema iniciando... Aguarde 10 segundos pelo sinal sonoro.")
+# --- Sinal de Início com Aquecimento do Áudio ---
+print("Sistema iniciando... Executando aquecimento do driver de áudio.")
+
+try:
+    # Comando de AQUICIMENTO (Silencioso: -q). Ele só força o ALSA a carregar.
+    print("Iniciando aquecimento do eSpeak...")
+    # Usamos o timeout de 1 segundo para garantir que não trave, caso algo dê errado
+    subprocess.run([ESPEAK_PATH, '-q', ' '], check=False, timeout=1) 
+    print("Aquecimento concluído. Aguardando 10 segundos pelo sinal sonoro.")
+except Exception as e:
+    print(f"AVISO: Falha no aquecimento do eSpeak. O áudio inicial pode ter engasgos. {e}")
+    
 time.sleep(10) # Pausa de 10 segundos
-falar("Olá, estou pronto para formar frases.")
+falar("Olá, estou pronto para formar frases.") # O driver já deve estar ativo agora!
 
 print("Aproxime as etiquetas RFID para formar a frase...")
 
@@ -68,6 +94,7 @@ print("Aproxime as etiquetas RFID para formar a frase...")
 try:
     while True:
         # Leitor 1 (Pronomes)
+        # ... (seu código de leitura RFID) ...
         (status1, uid1) = reader1.MFRC522_Request(reader1.PICC_REQIDL)
         if status1 == reader1.MI_OK:
             (status1, uid1) = reader1.MFRC522_Anticoll()
@@ -81,6 +108,7 @@ try:
                     print(f"Pronome não mapeado para UID: {uid_str1}")
 
         # Leitor 2 (Ações)
+        # ... (seu código de leitura RFID) ...
         (status2, uid2) = reader2.MFRC522_Request(reader2.PICC_REQIDL)
         if status2 == reader2.MI_OK:
             (status2, uid2) = reader2.MFRC522_Anticoll()
